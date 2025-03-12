@@ -3,6 +3,7 @@ import { StrictMode } from 'react';
 import { App } from './components/App.tsx';
 
 import { retrieveLaunchParams } from '@telegram-apps/sdk-react';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 import { Root } from '@/components/Root.tsx';
 import { EnvUnsupported } from '@/components/EnvUnsupported.tsx';
@@ -21,7 +22,11 @@ const root = ReactDOM.createRoot(document.getElementById('root')!);
 try {
   // Configure all application dependencies.
   init(retrieveLaunchParams().startParam === 'debug' || import.meta.env.DEV);
-  root.render(<App/>);
+root.render(
+  <ThemeProvider>
+    <App/>
+  </ThemeProvider>
+);
 
 } catch (e) {
   root.render(<EnvUnsupported/>);

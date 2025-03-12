@@ -8,14 +8,16 @@ export default function LoadingScreen() {
       flexDirection: 'column', 
       alignItems: 'center', 
       justifyContent: 'center',
-      height: '100vh'
+      height: '100vh',
+      backgroundColor: 'var(--background-color)',
+      color: 'var(--text-color)'
     }}>
       <div style={{ marginBottom: '16px' }}>
         <div className="custom-spinner" style={{
           width: '40px',
           height: '40px',
-          border: '4px solid rgba(0, 0, 0, 0.1)',
-          borderLeftColor: '#3390ec',
+          border: '4px solid rgba(255, 255, 255, 0.1)',
+          borderLeftColor: 'var(--accent-color)',
           borderRadius: '50%',
           animation: 'spin 1s linear infinite'
         }} />

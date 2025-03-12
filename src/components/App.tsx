@@ -5,6 +5,7 @@ import { AppRoot } from '@telegram-apps/telegram-ui';
 import { authenticateUser } from '../services/authService';
 import HomeFeed from '../pages/HomeFeed';
 import LoadingScreen from '../components/LoadingScreen';
+import '../themes/darkTheme.css'; // Import the dark theme CSS
 
 export function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -33,14 +34,21 @@ export function App() {
   }, []);
 
   return (
-    <AppRoot
-      appearance={isDark ? 'dark' : 'dark'}>
+    <AppRoot appearance="dark">
       {isLoading ? (
         <LoadingScreen />
       ) : isAuthenticated ? (
         <HomeFeed />
       ) : (
-        <div className="auth-error">
+        <div className="auth-error" style={{ 
+          textAlign: 'center', 
+          padding: '20px',
+          color: 'var(--text-color)',
+          backgroundColor: 'var(--card-background)',
+          borderRadius: '8px',
+          margin: '20px',
+          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
+        }}>
           <h3>Authentication Failed</h3>
           <p>Please try again later</p>
         </div>

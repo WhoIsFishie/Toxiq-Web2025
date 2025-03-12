@@ -83,16 +83,18 @@ export default function Post({ post, fullPost = false, onShare }) {
   };
 
   return (
-    <div 
-      className="post-container" 
-      onClick={handlePostClick}
-      style={{
-        border: `1px solid ${getBackgroundColor()}`,
-        borderRadius: '8px',
-        margin: '8px 0',
-        overflow: 'hidden'
-      }}
-    >
+  <div 
+  className="post-container" 
+  onClick={handlePostClick}
+  style={{
+    border: `1px solid ${getBackgroundColor()}`,
+    borderRadius: '8px',
+    margin: '8px 0',
+    overflow: 'hidden',
+    backgroundColor: 'var(--card-background)',
+    color: 'var(--text-color)'
+  }}
+>
       <div style={{ padding: '12px' }}>
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
@@ -132,12 +134,12 @@ export default function Post({ post, fullPost = false, onShare }) {
           
           {/* Reply content if exists */}
           {replyType !== ReplyType.Non && post.ReplyTo && (
-            <div style={{ 
-              backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-              padding: '8px', 
-              borderRadius: '8px',
-              marginTop: '8px' 
-            }}>
+     <div style={{ 
+    backgroundColor: 'var(--transparent-black)', 
+    padding: '8px', 
+    borderRadius: '8px',
+    marginTop: '8px' 
+  }}>
               <p style={{ fontSize: '14px', opacity: 0.8 }}>
                 Replying to @{post.ReplyTo.UserName || post.ReplyTo.userName || 'unknown'}
               </p>
