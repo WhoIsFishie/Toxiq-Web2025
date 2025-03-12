@@ -1,24 +1,50 @@
-import { useLaunchParams, miniApp, useSignal } from '@telegram-apps/sdk-react';
+// src/components/App.tsx
+import { useEffect, useState } from 'react';
+import { useSignal, initData, backButton, miniApp } from '@telegram-apps/sdk-react';
 import { AppRoot } from '@telegram-apps/telegram-ui';
-import { Navigate, Route, Routes, HashRouter } from 'react-router-dom';
-
-import { routes } from '@/navigation/routes.tsx';
+import { authenticateUser } from '../services/authService';
+import HomeFeed from '../pages/HomeFeed';
+import LoadingScreen from '../components/LoadingScreen';
 
 export function App() {
-  const lp = useLaunchParams();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const isDark = useSignal(miniApp.isDark);
+
+  useEffect(() => {
+    // Initialize auth flow
+    const initAuth = async () => {
+      setIsLoading(true);
+      const authSuccess = await authenticateUser();
+      setIsAuthenticated(authSuccess);
+      setIsLoading(false);
+      
+      // Indicate to Telegram that the app is ready to display
+      miniApp.ready();
+    };
+
+    initAuth();
+  }, []);
+
+  // Mount back button
+  useEffect(() => {
+    backButton.mount();
+    return () => backButton.unmount();
+  }, []);
 
   return (
     <AppRoot
-      appearance={isDark ? 'dark' : 'light'}
-      platform={['macos', 'ios'].includes(lp.platform) ? 'ios' : 'base'}
-    >
-      <HashRouter>
-        <Routes>
-          {routes.map((route) => <Route key={route.path} {...route} />)}
-          <Route path="*" element={<Navigate to="/"/>}/>
-        </Routes>
-      </HashRouter>
+      appearance={isDark ? 'dark' : 'light'}>
+      {isLoading ? (
+        <LoadingScreen />
+      ) : isAuthenticated ? (
+        <HomeFeed />
+      ) : (
+        <div className="auth-error">
+          <h3>Authentication Failed</h3>
+          <p>Please try again later</p>
+        </div>
+      )}
     </AppRoot>
   );
 }
