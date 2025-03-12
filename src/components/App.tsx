@@ -34,7 +34,7 @@ export function App() {
 
   return (
     <AppRoot
-      appearance={isDark ? 'dark' : 'light'}>
+      appearance={isDark ? 'dark' : 'dark'}>
       {isLoading ? (
         <LoadingScreen />
       ) : isAuthenticated ? (

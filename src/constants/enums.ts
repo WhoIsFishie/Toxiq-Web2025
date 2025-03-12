@@ -16,7 +16,16 @@ export enum SortType {
 export enum PostType {
     Text = 0,
     Image = 1,
-    Wall = 2
+    Wall = 2,
+    Burn = 3,  // Adding this based on your MAUI code
+    Reply = 4  // Adding this based on your MAUI code
+}
+
+
+export enum ReplyType {
+    Non = 0,
+    Quote = 1,
+    Reply = 2
 }
 
 export enum MessageType {
