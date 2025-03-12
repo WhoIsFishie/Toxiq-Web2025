@@ -1,6 +1,7 @@
 import ReactDOM from 'react-dom/client';
 import { StrictMode } from 'react';
 import { App } from './components/App.tsx';
+import { HashRouter } from 'react-router-dom';
 
 import { retrieveLaunchParams } from '@telegram-apps/sdk-react';
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -24,7 +25,9 @@ try {
   init(retrieveLaunchParams().startParam === 'debug' || import.meta.env.DEV);
 root.render(
   <ThemeProvider>
-    <App/>
+ 
+  <App />
+
   </ThemeProvider>
 );
 

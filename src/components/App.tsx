@@ -6,6 +6,10 @@ import { authenticateUser } from '../services/authService';
 import HomeFeed from '../pages/HomeFeed';
 import LoadingScreen from '../components/LoadingScreen';
 import '../themes/darkTheme.css'; // Import the dark theme CSS
+import PostView from '../pages/PostView';
+import AuthMiddleware from '../middleware/AuthMiddleware';
+
+import { BrowserRouter as Router, Routes, Route,HashRouter  } from 'react-router-dom';
 
 export function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -33,26 +37,16 @@ export function App() {
     return () => backButton.unmount();
   }, []);
 
-  return (
-    <AppRoot appearance="dark">
-      {isLoading ? (
-        <LoadingScreen />
-      ) : isAuthenticated ? (
-        <HomeFeed />
-      ) : (
-        <div className="auth-error" style={{ 
-          textAlign: 'center', 
-          padding: '20px',
-          color: 'var(--text-color)',
-          backgroundColor: 'var(--card-background)',
-          borderRadius: '8px',
-          margin: '20px',
-          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
-        }}>
-          <h3>Authentication Failed</h3>
-          <p>Please try again later</p>
-        </div>
-      )}
-    </AppRoot>
+ return (
+    <HashRouter>
+ <AuthMiddleware>
+        <Routes>
+          <Route path="/" element={<HomeFeed />} />
+          <Route path="/posts/:postId" element={<PostView />} />
+          {/* Catch-all route that defaults to home */}
+          <Route path="*" element={<HomeFeed />} />
+        </Routes>
+      </AuthMiddleware>
+    </HashRouter>
   );
 }

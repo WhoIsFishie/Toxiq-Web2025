@@ -2,8 +2,11 @@
 import React from 'react';
 import { PostService } from '../services/apiClient';
 import { PostType, ReplyType } from '../constants/enums';
+import { useNavigate } from 'react-router-dom';
 
 export default function Post({ post, fullPost = false, onShare }) {
+    const navigate = useNavigate();
+
   const [supportStatus, setSupportStatus] = React.useState(post.SupportStatus);
   const [supportCount, setSupportCount] = React.useState(post.SupportCount || post.supportCount || 0);
   const [commentCount, setCommentCount] = React.useState(post.CommentCount || post.commentCount || 0);
@@ -73,7 +76,7 @@ export default function Post({ post, fullPost = false, onShare }) {
 
   const handlePostClick = () => {
     if (!fullPost) {
-      window.location.href = `/posts/${id}`;
+      navigate(`/posts/${post.Id || post.id}`);
     }
   };
   
