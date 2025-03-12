@@ -1,5 +1,7 @@
 // src/components/Post.jsx
 import React from 'react';
+import FormattedText from './FormattedText';
+
 import { PostService } from '../services/apiClient';
 import { PostType, ReplyType } from '../constants/enums';
 import { useNavigate } from 'react-router-dom';
@@ -114,7 +116,7 @@ export default function Post({ post, fullPost = false, onShare }) {
         </div>
         
         {/* Content */}
-        <div>
+        <div>          
           <p style={{ 
             fontSize: '17px', 
             lineHeight: '1.2', 
@@ -123,7 +125,13 @@ export default function Post({ post, fullPost = false, onShare }) {
             textOverflow: 'ellipsis',
             maxHeight: fullPost ? 'none' : '200px' 
           }}>
-            {content}
+             <FormattedText 
+              text={content} 
+              style={{ 
+                fontSize: 'inherit',
+                fontFamily: 'inherit' 
+              }}
+            />
           </p>
           
           {/* Post Media (Image) */}

@@ -5,6 +5,8 @@ import { PostService, CommentService } from '../services/apiClient';
 import Post from '../components/Post';
 import LoadingScreen from '../components/LoadingScreen';
 import { backButton } from '@telegram-apps/sdk-react';
+import Comment from '../components/Comment';
+
 
 const PostView = () => {
   const { postId } = useParams();
@@ -32,66 +34,74 @@ const PostView = () => {
   }, [navigate]);
   
   // Load the post and comments
-  useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true);
-      try {
-        // Load post data
-        const postData = await PostService.getPost(postId);
-        setPost(postData);
-        
-        // Load comments
-        const commentData = await CommentService.getComments({
-          Id: postId,
+// In src/pages/PostView.jsx
+useEffect(() => {
+const loadData = async () => {
+  setIsLoading(true);
+  try {
+    // Load post data
+    const postData = await PostService.getPost(postId);
+    console.log('Post data loaded:', postData);
+    setPost(postData);
+    
+    // Load comments
+    const commentData = await CommentService.getComments({
+      Id: postId,
+      Page: 1,
+      Count: 100,
+      IsReply: false,
+      Sort: 0
+    });
+    
+    console.log('Raw comment data:', commentData);
+    
+    // IMPORTANT FIX: Use lowercase 'data' instead of uppercase 'Data'
+    const commentsArray = commentData && commentData.data ? commentData.data : [];
+    console.log('Setting comments state with:', commentsArray);
+    setComments(commentsArray);
+    
+    // Load replies for each comment
+    if (commentsArray.length > 0) {
+      loadReplies(commentsArray);
+    }
+  } catch (error) {
+    console.error('Error loading post data:', error);
+  } finally {
+    setIsLoading(false);
+  }
+};
+  
+  if (postId) {
+    loadData();
+  }
+}, [postId]);
+  
+const loadReplies = async (commentsList) => {
+  try {
+    const commentsWithReplies = await Promise.all(
+      commentsList.map(async (comment) => {
+        const replyData = await CommentService.getComments({
+          Id: comment.Id || comment.id, // Also handle lowercase id
           Page: 1,
           Count: 100,
-          IsReply: false,
+          IsReply: true,
           Sort: 0
         });
         
-        setComments(commentData.Data || []);
-        
-        // Load replies for each comment
-        if (commentData.Data && commentData.Data.length > 0) {
-          loadReplies(commentData.Data);
-        }
-      } catch (error) {
-        console.error('Error loading post data:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+        // IMPORTANT FIX: Use lowercase 'data' property
+        return {
+          ...comment,
+          Replies: replyData.data || [],
+          ReplyCount: replyData.data?.length || 0
+        };
+      })
+    );
     
-    if (postId) {
-      loadData();
-    }
-  }, [postId]);
-  
-  const loadReplies = async (commentsList) => {
-    try {
-      const commentsWithReplies = await Promise.all(
-        commentsList.map(async (comment) => {
-          const replyData = await CommentService.getComments({
-            Id: comment.Id,
-            Page: 1,
-            Count: 100,
-            IsReply: true,
-            Sort: 0
-          });
-          
-          return {
-            ...comment,
-            Replies: replyData.Data || [],
-            ReplyCount: replyData.Data?.length || 0
-          };
-        })
-      );
-      
-      setComments(commentsWithReplies);
-    } catch (error) {
-      console.error('Error loading replies:', error);
-    }
-  };
+    setComments(commentsWithReplies);
+  } catch (error) {
+    console.error('Error loading replies:', error);
+  }
+};
   
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
@@ -256,130 +266,26 @@ const PostView = () => {
       </div>
       
       {/* Comments */}
-      <div className="comments-container" style={{ padding: '10px' }}>
-        <h3 style={{ margin: '10px 0' }}>Comments ({comments.length})</h3>
-        
-        {comments.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '20px', opacity: 0.7 }}>
-            No comments yet. Be the first to comment!
-          </div>
-        ) : (
-          <div className="comments-list">
-            {comments.map(comment => (
-              <CommentItem 
-                key={comment.Id} 
-                comment={comment} 
-                onReply={handleReply} 
-              />
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-// Comment Component
-const CommentItem = ({ comment, onReply }) => {
-  const [showReplies, setShowReplies] = useState(false);
+   <div className="comments-container" style={{ padding: '10px' }}>
+  <h3 style={{ margin: '10px 0' }}>Comments ({comments.length})</h3>
   
-  return (
-    <div className="comment-item" style={{
-      margin: '10px 0',
-      padding: '10px',
-      backgroundColor: 'var(--card-background)',
-      borderRadius: '8px',
-      border: '1px solid var(--border-color)'
-    }}>
-      <div className="comment-header" style={{
-        display: 'flex',
-        alignItems: 'center',
-        marginBottom: '5px'
-      }}>
-        <span style={{ fontWeight: 'bold', marginRight: '5px' }}>@{comment.UserName}</span>
-        <span style={{ fontSize: '12px', opacity: 0.7 }}>
-          {new Date(comment.DateCreated).toLocaleString()}
-        </span>
-      </div>
-      
-      <div className="comment-content" style={{ margin: '10px 0' }}>
-        {comment.Content}
-      </div>
-      
-      <div className="comment-actions" style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        marginTop: '5px',
-        fontSize: '12px'
-      }}>
-        <button 
-          onClick={() => onReply(comment)}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: 'var(--accent-color)',
-            cursor: 'pointer'
-          }}
-        >
-          Reply
-        </button>
-        
-        {comment.ReplyCount > 0 && (
-          <button 
-            onClick={() => setShowReplies(!showReplies)}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'var(--accent-color)',
-              cursor: 'pointer'
-            }}
-          >
-            {showReplies ? 'Hide Replies' : `Show Replies (${comment.ReplyCount})`}
-          </button>
-        )}
-      </div>
-      
-      {/* Replies */}
-      {showReplies && comment.Replies && comment.Replies.length > 0 && (
-        <div className="replies-container" style={{
-          marginTop: '10px',
-          paddingLeft: '20px',
-          borderLeft: '2px solid var(--border-color)'
-        }}>
-          {comment.Replies.map(reply => (
-            <div 
-              key={reply.Id}
-              className="reply-item"
-              style={{
-                margin: '10px 0',
-                padding: '8px',
-                backgroundColor: 'rgba(40, 40, 40, 0.5)',
-                borderRadius: '8px'
-              }}
-            >
-              <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>
-                @{reply.UserName}
-              </div>
-              <div>{reply.Content}</div>
-              <button 
-                onClick={() => onReply(comment)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--accent-color)',
-                  fontSize: '12px',
-                  marginTop: '5px',
-                  cursor: 'pointer'
-                }}
-              >
-                Reply
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
+  {comments.length === 0 ? (
+    <div style={{ textAlign: 'center', padding: '20px', opacity: 0.7 }}>
+      No comments yet. Be the first to comment!
+    </div>
+  ) : (
+    <div className="comments-list">
+      {comments.map(comment => (
+        <Comment 
+          key={comment.Id} 
+          comment={comment} 
+          onReply={handleReply} 
+        />
+      ))}
+    </div>
+  )}
+</div>
     </div>
   );
 };
-
 export default PostView;
