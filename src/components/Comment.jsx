@@ -2,8 +2,16 @@
 import React, { useState } from "react";
 import { CommentService } from "../services/apiClient";
 import FormattedText from "./FormattedText";
+import SupportButtons from "./SupportButtons";
 
 const Comment = ({ comment, onReply, isReply = false }) => {
+  const [supportStatus, setSupportStatus] = useState(
+    comment.SupportStatus || comment.supportStatus
+  );
+  const [supportCount, setSupportCount] = useState(
+    comment.SupportCount || comment.supportCount || 0
+  );
+
   const [showReplies, setShowReplies] = useState(false);
 
   const id = comment.Id || comment.id;
@@ -11,8 +19,7 @@ const Comment = ({ comment, onReply, isReply = false }) => {
   const name = comment.Name || comment.name;
   const content = comment.Content || comment.content;
   const dateCreated = comment.DateCreated || comment.dateCreated;
-  const supportCount = comment.SupportCount || comment.supportCount || 0;
-  const supportStatus = comment.SupportStatus || comment.supportStatus;
+
   const replyCount = comment.ReplyCount || comment.replyCount || 0;
   const replies = comment.Replies || comment.replies || [];
   const postMedia = comment.PostMedia || comment.postMedia;
@@ -45,7 +52,7 @@ const Comment = ({ comment, onReply, isReply = false }) => {
 
   const handleLike = async () => {
     try {
-      await CommentService.likeComment(comment.Id);
+      await CommentService.likeComment(id);
       setSupportCount((prev) => prev + 1);
       setSupportStatus(true);
     } catch (error) {
@@ -163,32 +170,14 @@ const Comment = ({ comment, onReply, isReply = false }) => {
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-            <button
-              onClick={handleLike}
-              style={{
-                background: "none",
-                border: "none",
-                padding: "5px",
-                cursor: "pointer",
-                color: supportStatus === true ? "var(--accent-color)" : "white",
-              }}
-            >
-              👍
-            </button>
-            <span>{supportCount}</span>
-            <button
-              onClick={handleDislike}
-              style={{
-                background: "none",
-                border: "none",
-                padding: "5px",
-                cursor: "pointer",
-                color:
-                  supportStatus === false ? "var(--accent-color)" : "white",
-              }}
-            >
-              👎
-            </button>
+            <SupportButtons
+              supportStatus={supportStatus}
+              supportCount={supportCount}
+              onUpvote={() => handleLike()}
+              onDownvote={() => handleDislike()}
+              variant="comment"
+              size="small"
+            />
           </div>
         </div>
       </div>

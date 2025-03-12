@@ -5,7 +5,7 @@ import FormattedText from './FormattedText';
 import { PostService } from '../services/apiClient';
 import { PostType, ReplyType } from '../constants/enums';
 import { useNavigate } from 'react-router-dom';
-
+import SupportButtons from './SupportButtons';
 export default function Post({ post, fullPost = false, onShare }) {
     const navigate = useNavigate();
 
@@ -181,38 +181,16 @@ export default function Post({ post, fullPost = false, onShare }) {
           gap: '15px'
         }}>
           {/* Like/Dislike buttons */}
-          <div style={{ 
-            display: 'flex', 
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            borderRadius: '15px',
-            overflow: 'hidden'
-          }}>
-            <button 
-              onClick={(e) => { e.stopPropagation(); handleUpvote(); }} 
-              style={{ 
-                background: 'transparent',
-                border: 'none',
-                padding: '10px',
-                cursor: 'pointer',
-                color: supportStatus === true ? '#3390ec' : 'white'
-              }}
-            >
-              👍
-            </button>
-            <div style={{ width: '1px', backgroundColor: 'rgba(255, 255, 255, 0.3)' }}></div>
-            <button 
-              onClick={(e) => { e.stopPropagation(); handleDownvote(); }}
-              style={{ 
-                background: 'transparent',
-                border: 'none',
-                padding: '10px',
-                cursor: 'pointer',
-                color: supportStatus === false ? '#3390ec' : 'white'
-              }}
-            >
-              👎
-            </button>
-          </div>
+       
+<SupportButtons
+  supportStatus={supportStatus}
+  supportCount={supportCount}
+  onUpvote={() => handleUpvote()}
+  onDownvote={() => handleDownvote()}
+  variant="post"
+  showCount= 'false'
+/>
+          
           
           {/* Comment button */}
           <button 
