@@ -1,7 +1,10 @@
 // src/components/Post.jsx
 import React from 'react';
 import FormattedText from './FormattedText';
-
+import { 
+  CommentRegular, 
+  ShareRegular 
+} from '@fluentui/react-icons';
 import { PostService } from '../services/apiClient';
 import { PostType, ReplyType } from '../constants/enums';
 import { useNavigate } from 'react-router-dom';
@@ -92,9 +95,8 @@ export default function Post({ post, fullPost = false, onShare }) {
   className="post-container" 
   onClick={handlePostClick}
   style={{
-    border: `1px solid ${getBackgroundColor()}`,
-    borderRadius: '8px',
-    margin: '8px 0',
+    borderRadius: '0px',
+    margin: '0',
     overflow: 'hidden',
     backgroundColor: 'var(--card-background)',
     color: 'var(--text-color)'
@@ -209,7 +211,8 @@ export default function Post({ post, fullPost = false, onShare }) {
               color: 'white'
             }}
           >
-            <span>💬</span>
+    <CommentRegular fontSize={20} />
+
             <span style={{ fontWeight: 'bold' }}>Comment</span>
           </button>
           
@@ -230,7 +233,7 @@ export default function Post({ post, fullPost = false, onShare }) {
               color: 'white'
             }}
           >
-            <span>↗️</span>
+            <ShareRegular fontSize={20} />
             <span style={{ fontWeight: 'bold' }}>Share</span>
           </button>
         </div>

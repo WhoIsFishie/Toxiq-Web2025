@@ -195,9 +195,9 @@ export default function Posts({ audience = Audience.All, sortBy = SortType.New }
   }
 
   return (
-    <div className="posts-container" style={{ padding: '8px' }}>
+    <div className="posts-container" style={{ padding: '0px',margin:0 }}>
       {posts.length === 0 && !loading ? (
-        <div style={{ textAlign: 'center', padding: '20px' }}>No posts available</div>
+        <div style={{ textAlign: 'center', padding: '0px' }}>No posts available</div>
       ) : (
         <>
           {posts.map((post, index) => (
