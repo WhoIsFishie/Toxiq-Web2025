@@ -6,6 +6,7 @@ import {
   initData,
   $debug,
   init as initSDK,
+  miniAppBottomBarColor,
 } from '@telegram-apps/sdk-react';
 
 /**
@@ -46,6 +47,8 @@ export function init(debug: boolean): void {
   // Define components-related CSS variables.
   miniApp.bindCssVars();
   themeParams.bindCssVars();
-
+  miniApp.setBackgroundColor("#0e0e0e");
+  miniApp.setBottomBarColor("#0e0e0e");
+  miniApp.setHeaderColor("#0e0e0e");
   viewport.expand();
 }

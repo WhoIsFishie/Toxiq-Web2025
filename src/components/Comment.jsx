@@ -84,9 +84,9 @@ const Comment = ({ comment, onReply, isReply = false }) => {
         className="comment-content"
         style={{
           padding: "10px",
-          backgroundColor: "var(--card-background)",
+          backgroundColor: "var(--off-black)",
           borderRadius: "8px",
-          border: "1px solid var(--border-color)",
+          border: "0px solid var(--border-color)",
         }}
       >
         {/* Header - Username and name */}

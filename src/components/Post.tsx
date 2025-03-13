@@ -2,16 +2,16 @@
 import React from 'react';
 import FormattedText from './FormattedText';
 import ReplyCard from './ReplyCard';
-import { 
-  CommentRegular, 
-  ShareRegular 
+import {
+  CommentRegular,
+  ShareRegular
 } from '@fluentui/react-icons';
 import { PostService } from '../services/apiClient';
 import { PostType, ReplyType } from '../constants/enums';
 import { useNavigate } from 'react-router-dom';
 import SupportButtons from './SupportButtons';
 export default function Post({ post, fullPost = false, onShare }) {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const [supportStatus, setSupportStatus] = React.useState(post.SupportStatus);
   const [supportCount, setSupportCount] = React.useState(post.SupportCount || post.supportCount || 0);
@@ -85,31 +85,31 @@ export default function Post({ post, fullPost = false, onShare }) {
       navigate(`/posts/${post.Id || post.id}`);
     }
   };
-  
+
   const handleProfileClick = (e) => {
     e.stopPropagation();
     window.location.href = `/profile/${userName}`;
   };
 
   return (
-  <div 
-  className="post-container" 
-  onClick={handlePostClick}
-  style={{
-    borderRadius: '0px',
-    margin: '0',
-    overflow: 'hidden',
-    backgroundColor: 'var(--card-background)',
-    color: 'var(--text-color)'
-  }}
->
+    <div
+      className="post-container"
+      onClick={handlePostClick}
+      style={{
+        borderRadius: '0px',
+        margin: '0',
+        overflow: 'hidden',
+        backgroundColor: 'var(--off-black)',
+        color: 'var(--text-color)'
+      }}
+    >
       <div style={{ padding: '12px' }}>
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontSize: '16px' }}>{name}</span>
-            <span 
-              style={{ fontWeight: 'bold', cursor: 'pointer' }} 
+            <span
+              style={{ fontWeight: 'bold', cursor: 'pointer' }}
               onClick={handleProfileClick}
             >
               @{userName}
@@ -117,55 +117,55 @@ export default function Post({ post, fullPost = false, onShare }) {
           </div>
           {type === PostType.Burn && <span>🔥🔥</span>}
         </div>
-        
+
         {/* Content */}
-        <div>          
-          <p style={{ 
-            fontSize: '17px', 
-            lineHeight: '1.2', 
+        <div>
+          <p style={{
+            fontSize: '17px',
+            lineHeight: '1.2',
             whiteSpace: 'pre-wrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
-            maxHeight: fullPost ? 'none' : '200px' 
+            maxHeight: fullPost ? 'none' : '200px'
           }}>
-             <FormattedText 
-              text={content} 
-              style={{ 
+            <FormattedText
+              text={content}
+              style={{
                 fontSize: 'inherit',
-                fontFamily: 'inherit' 
+                fontFamily: 'inherit'
               }}
             />
           </p>
-          
-{/* Post Media (Image) */}
-{postMedia && postMedia.length > 0 && postMedia[0]?.MediaPath && (
-  <img 
-    src={postMedia[0].MediaPath} 
-    alt="Post attachment"
-    style={{ 
-      maxWidth: '100%', 
-      borderRadius: '8px',
-      marginTop: '8px', 
-      maxHeight: '512px' 
-    }}
-  />
-)}
-          
-{/* Reply content if exists */}
-{replyType !== ReplyType.Non && (
-  <div style={{ marginTop: '8px' }}>
-    <ReplyCard 
-      parentPost={post} 
-      fullPost={fullPost}
-    />
-  </div>
-)}
+
+          {/* Post Media (Image) */}
+          {postMedia && postMedia.length > 0 && postMedia[0]?.MediaPath && (
+            <img
+              src={postMedia[0].MediaPath}
+              alt="Post attachment"
+              style={{
+                maxWidth: '100%',
+                borderRadius: '8px',
+                marginTop: '8px',
+                maxHeight: '512px'
+              }}
+            />
+          )}
+
+          {/* Reply content if exists */}
+          {replyType !== ReplyType.Non && (
+            <div style={{ marginTop: '8px' }}>
+              <ReplyCard
+                parentPost={post}
+                fullPost={fullPost}
+              />
+            </div>
+          )}
         </div>
-        
+
         {/* Stats */}
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
           marginTop: '12px',
           opacity: 0.7,
           fontSize: '11px'
@@ -173,30 +173,30 @@ export default function Post({ post, fullPost = false, onShare }) {
           <span>{supportCount} Likes</span>
           <span>{commentCount} Comments</span>
         </div>
-        
+
         {/* Action buttons */}
-        <div style={{ 
-          display: 'flex', 
+        <div style={{
+          display: 'flex',
           justifyContent: 'space-between',
           marginTop: '10px',
           gap: '15px'
         }}>
           {/* Like/Dislike buttons */}
-       
-<SupportButtons
-  supportStatus={supportStatus}
-  supportCount={supportCount}
-  onUpvote={() => handleUpvote()}
-  onDownvote={() => handleDownvote()}
-  variant="post"
-  showCount= 'false'
-/>
-          
-          
+
+          <SupportButtons
+            supportStatus={supportStatus}
+            supportCount={supportCount}
+            onUpvote={() => handleUpvote()}
+            onDownvote={() => handleDownvote()}
+            variant="post"
+            showCount='false'
+          />
+
+
           {/* Comment button */}
-          <button 
+          <button
             onClick={handlePostClick}
-            style={{ 
+            style={{
               flex: 1,
               display: 'flex',
               alignItems: 'center',
@@ -210,15 +210,15 @@ export default function Post({ post, fullPost = false, onShare }) {
               color: 'white'
             }}
           >
-    <CommentRegular fontSize={20} />
+            <CommentRegular fontSize={20} />
 
             <span style={{ fontWeight: 'bold' }}>Comment</span>
           </button>
-          
+
           {/* Share button */}
-          <button 
+          <button
             onClick={(e) => { e.stopPropagation(); onShare && onShare(post); }}
-            style={{ 
+            style={{
               flex: 1,
               display: 'flex',
               alignItems: 'center',
@@ -237,7 +237,7 @@ export default function Post({ post, fullPost = false, onShare }) {
           </button>
         </div>
       </div>
-      
+
       {/* Separator */}
       <div style={{ height: '1px', backgroundColor: 'rgba(255, 255, 255, 0.3)', opacity: 0.3 }}></div>
     </div>
