@@ -1,9 +1,9 @@
-// src/components/App.tsx
 import { useEffect, useState } from 'react';
 import { useSignal, initData, backButton, miniApp } from '@telegram-apps/sdk-react';
 import { AppRoot } from '@telegram-apps/telegram-ui';
 import { authenticateUser } from '../services/authService';
 import HomeFeed from '../pages/HomeFeed';
+import PostParamRedirect from './PostParamRedirect';
 import LoadingScreen from '../components/LoadingScreen';
 import '../themes/darkTheme.css'; // Import the dark theme CSS
 import PostView from '../pages/PostView';
@@ -41,6 +41,9 @@ export function App() {
     <HashRouter>
  <AuthMiddleware>
         <Routes>
+          <Route path="/posts" element={<PostParamRedirect />}/>
+
+
           <Route path="/" element={<HomeFeed />} />
           <Route path="/posts/:postId" element={<PostView />} />
           {/* Catch-all route that defaults to home */}

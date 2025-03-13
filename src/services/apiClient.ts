@@ -115,7 +115,22 @@ export const PostService = {
     removeVote: async (postId: string) => {
         const response = await apiClient.get(`/Post/Deletevote/${postId}`);
         return response.data;
+    },
+
+    // Add to the PostService in apiClient.ts
+    getPrompt: async (promptId: string) => {
+        const response = await apiClient.get(`/Post/GetPrompt/${promptId}`);
+        return response.data;
     }
+};
+
+// Add to apiClient.ts or create if it doesn't exist
+export const NotesService = {
+    getNote: async (noteId: string) => {
+        const response = await apiClient.get(`/Notes/GetNote/${noteId}`);
+        return response.data;
+    }
+    // ...other methods
 };
 
 // Comment Service

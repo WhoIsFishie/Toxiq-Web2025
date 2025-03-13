@@ -1,6 +1,7 @@
 // src/components/Post.jsx
 import React from 'react';
 import FormattedText from './FormattedText';
+import ReplyCard from './ReplyCard';
 import { 
   CommentRegular, 
   ShareRegular 
@@ -136,31 +137,29 @@ export default function Post({ post, fullPost = false, onShare }) {
             />
           </p>
           
-          {/* Post Media (Image) */}
-          {postMedia && postMedia.length > 0 && postMedia[0]?.MediaPath && (
-            <img 
-              src={postMedia[0].MediaPath} 
-              alt="Post attachment"
-              style={{ maxWidth: '100%', maxHeight: '512px', marginTop: '8px' }}
-            />
-          )}
+{/* Post Media (Image) */}
+{postMedia && postMedia.length > 0 && postMedia[0]?.MediaPath && (
+  <img 
+    src={postMedia[0].MediaPath} 
+    alt="Post attachment"
+    style={{ 
+      maxWidth: '100%', 
+      borderRadius: '8px',
+      marginTop: '8px', 
+      maxHeight: '512px' 
+    }}
+  />
+)}
           
-          {/* Reply content if exists */}
-          {replyType !== ReplyType.Non && post.ReplyTo && (
-     <div style={{ 
-    backgroundColor: 'var(--transparent-black)', 
-    padding: '8px', 
-    borderRadius: '8px',
-    marginTop: '8px' 
-  }}>
-              <p style={{ fontSize: '14px', opacity: 0.8 }}>
-                Replying to @{post.ReplyTo.UserName || post.ReplyTo.userName || 'unknown'}
-              </p>
-              <p style={{ fontSize: '15px' }}>
-                {post.ReplyTo.Content || post.ReplyTo.content || ''}
-              </p>
-            </div>
-          )}
+{/* Reply content if exists */}
+{replyType !== ReplyType.Non && (
+  <div style={{ marginTop: '8px' }}>
+    <ReplyCard 
+      parentPost={post} 
+      fullPost={fullPost}
+    />
+  </div>
+)}
         </div>
         
         {/* Stats */}
