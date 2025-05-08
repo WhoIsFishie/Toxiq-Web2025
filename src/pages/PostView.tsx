@@ -11,8 +11,16 @@ import {
 } from '@fluentui/react-icons';
 import { Component2DoubleTapSwipeDown24Filled } from '@fluentui/react-icons/fonts';
 
-const PostView = () => {
-    const { postId } = useParams();
+// Define props interface for TypeScript
+interface PostViewProps {
+    postIdOverride?: string;
+}
+
+// Updated to accept postIdOverride prop
+const PostView = ({ postIdOverride }: PostViewProps) => {
+    // Use postIdOverride if provided, otherwise fall back to route param
+    const { postId: routePostId } = useParams();
+    const postId = postIdOverride || routePostId;
     const navigate = useNavigate();
 
     const [post, setPost] = useState(null);
@@ -39,10 +47,13 @@ const PostView = () => {
     // Load the post and comments
     // In src/pages/PostView.jsx
     useEffect(() => {
+        console.log('PostView - Loading data for postId:', postId);
+
         const loadData = async () => {
             setIsLoading(true);
             try {
                 // Load post data
+                console.log('Fetching post data for ID:', postId);
                 const postData = await PostService.getPost(postId);
                 console.log('Post data loaded:', postData);
                 setPost(postData);

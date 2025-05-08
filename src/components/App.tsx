@@ -4,12 +4,13 @@ import { AppRoot } from '@telegram-apps/telegram-ui';
 import { authenticateUser } from '../services/authService';
 import HomeFeed from '../pages/HomeFeed';
 import PostParamRedirect from './PostParamRedirect';
+import RootRouteHandler from './RootRouteHandler';
+import TgParamHandler from './TgParamHandler';
 import LoadingScreen from '../components/LoadingScreen';
 import '../themes/darkTheme.css'; // Import the dark theme CSS
-import PostView from '../pages/PostView';
 import AuthMiddleware from '../middleware/AuthMiddleware';
 
-import { BrowserRouter as Router, Routes, Route,HashRouter  } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, HashRouter } from 'react-router-dom';
 
 export function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -23,7 +24,7 @@ export function App() {
       const authSuccess = await authenticateUser();
       setIsAuthenticated(authSuccess);
       setIsLoading(false);
-      
+
       // Indicate to Telegram that the app is ready to display
       miniApp.ready();
     };
@@ -37,16 +38,20 @@ export function App() {
     return () => backButton.unmount();
   }, []);
 
- return (
+  return (
     <HashRouter>
- <AuthMiddleware>
+      <AuthMiddleware>
         <Routes>
-          <Route path="/posts" element={<PostParamRedirect />}/>
+          {/* Route for direct post ID in URL path */}
+          <Route path="/posts/:postId" element={<PostParamRedirect />} />
 
+          {/* Special route specifically for tgWebAppStartParam */}
+          <Route path="/posts/" element={<TgParamHandler />} />
 
+          {/* Home route */}
           <Route path="/" element={<HomeFeed />} />
-          <Route path="/posts/:postId" element={<PostView />} />
-          {/* Catch-all route that defaults to home */}
+
+          {/* Catch-all route */}
           <Route path="*" element={<HomeFeed />} />
         </Routes>
       </AuthMiddleware>

@@ -179,7 +179,8 @@ export default function Post({ post, fullPost = false, onShare }) {
           display: 'flex',
           justifyContent: 'space-between',
           marginTop: '10px',
-          gap: '15px'
+          gap: '15px',
+          height: '33px'
         }}>
           {/* Like/Dislike buttons */}
 
@@ -205,7 +206,7 @@ export default function Post({ post, fullPost = false, onShare }) {
               backgroundColor: 'rgba(255, 255, 255, 0.1)',
               border: 'none',
               borderRadius: '15px',
-              padding: '10px',
+              padding: '0px',
               cursor: 'pointer',
               color: 'white'
             }}
@@ -227,7 +228,7 @@ export default function Post({ post, fullPost = false, onShare }) {
               backgroundColor: 'rgba(255, 255, 255, 0.1)',
               border: 'none',
               borderRadius: '15px',
-              padding: '10px',
+              padding: '0px',
               cursor: 'pointer',
               color: 'white'
             }}

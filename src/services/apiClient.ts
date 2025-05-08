@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Base URL for the API
-const BASE_URL = 'https://api.toxiq.xyz/api';
+const BASE_URL = 'https://toxiq.xyz/api';
 
 // Create an axios instance with default configurations
 const apiClient = axios.create({

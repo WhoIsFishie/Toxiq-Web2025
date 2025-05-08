@@ -20,7 +20,7 @@ export default defineConfig({
   ],
   publicDir: './public',
   server: {
-    host: '10.0.10.3',
+    host: 'localhost',
     port: 9454,
     // Exposes your dev server and makes it accessible for the devices in the same network
     strictPort: true,
