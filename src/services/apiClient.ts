@@ -169,7 +169,68 @@ export const StickerService = {
     }
 };
 
-// Error Handling Utility
+// Custom Error class to include status code and original data
+export class ApiError extends Error {
+  public status?: number;
+  public data?: any;
+
+  constructor(message: string, status?: number, data?: any) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.data = data; // Store original error data if needed
+  }
+}
+
+// Response Interceptor to handle errors globally
+apiClient.interceptors.response.use(
+  response => response, // Pass through successful responses
+  (error: any) => { // error can be AxiosError or other types
+    console.error('API Error Interceptor caught:', error.config?.url, error.response?.status, error.message);
+
+    if (error.response) {
+      // Server responded with a status code out of 2xx range
+      const status = error.response.status;
+      let message = `Request failed: ${status}`;
+      
+      const responseData = error.response.data;
+      if (responseData) {
+        if (typeof responseData === 'string' && responseData.length > 0) {
+          message = responseData;
+        } else if (responseData.message && typeof responseData.message === 'string') {
+          message = responseData.message;
+        } else if (responseData.error && typeof responseData.error === 'string') {
+          message = responseData.error;
+        } else if (Object.keys(responseData).length > 0) {
+          // Fallback if data is an object but no specific message field
+          try {
+            message = `Request failed: ${status} - ${JSON.stringify(responseData).substring(0, 150)}`;
+          } catch (e) {
+            message = `Request failed: ${status} - (Error serializing response data)`;
+          }
+        }
+      }
+      
+      // Example: Clear token if 401 and token exists, but do not navigate
+      // if (status === 401 && localStorage.getItem('token')) {
+      //   localStorage.removeItem('token');
+      //   console.warn("Token removed due to 401 error. User needs to re-authenticate.");
+      // }
+      
+      return Promise.reject(new ApiError(message, status, error.response.data));
+    } else if (error.request) {
+      // Request was made but no response received (e.g., network error)
+      return Promise.reject(new ApiError('Network error: No response received from server.', undefined, error.request));
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      return Promise.reject(new ApiError(`Request setup error: ${error.message || 'Unknown error'}`, undefined, error));
+    }
+  }
+);
+
+// The old standalone handleApiError function is no longer needed
+// as its logic is now integrated into the response interceptor.
+/*
 export const handleApiError = (error: any) => {
     if (error.response) {
         // The request was made and the server responded with a status code
@@ -182,7 +243,7 @@ export const handleApiError = (error: any) => {
             case 401:
                 // Unauthorized - maybe clear token and redirect to login
                 localStorage.removeItem('token');
-                window.location.href = '/login';
+                // window.location.href = '/login'; // Removed
                 break;
             case 403:
                 // Forbidden
@@ -197,16 +258,22 @@ export const handleApiError = (error: any) => {
                 break;
         }
 
-        return error.response.data;
+        // Instead of returning error.response.data, throw an error.
+        // throw new ApiError(error.response.data?.message || `Request failed with status ${error.response.status}`, error.response.status, error.response.data);
+        // This logic is now in the interceptor
+        return error.response.data; // Kept for reference, but interceptor handles rejection
     } else if (error.request) {
         // The request was made but no response was received
         console.error('No response received:', error.request);
+        // throw new ApiError('Network error: No response received from server.');
         return { message: 'No response from server' };
     } else {
         // Something happened in setting up the request that triggered an Error
         console.error('Error setting up request:', error.message);
+        // throw new ApiError(`Request setup error: ${error.message}`);
         return { message: 'An unexpected error occurred' };
     }
 };
+*/
 
 export default apiClient;

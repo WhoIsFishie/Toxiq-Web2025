@@ -35,10 +35,18 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       },
     } = this;
 
-    return 'error' in this.state
-      ? typeof Fallback === 'function'
-        ? <Fallback error={error} />
-        : Fallback
-      : children;
+    if ('error' in this.state) {
+      if (Fallback) {
+        return typeof Fallback === 'function' ? <Fallback error={error} /> : Fallback;
+      }
+      // Default fallback UI
+      return (
+        <div style={{ padding: '10px', textAlign: 'center', color: 'gray', border: '1px dashed lightgray', margin: '10px 0' }}>
+          <p>An error occurred.</p>
+        </div>
+      );
+    }
+
+    return children;
   }
 }
