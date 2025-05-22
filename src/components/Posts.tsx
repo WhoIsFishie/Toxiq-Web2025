@@ -3,17 +3,22 @@ import React, { useState, useEffect } from 'react';
 import { PostService } from '../services/apiClient';
 import { Audience, SortType } from '../constants/enums';
 import Post from './Post';
+import { ErrorBoundary } from './ErrorBoundary'; // Import ErrorBoundary
 
 export default function Posts({ audience = Audience.All, sortBy = SortType.New }) {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loadMoreError, setLoadMoreError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [hasMorePosts, setHasMorePosts] = useState(true);
 
   const fetchPosts = async (pageNum = 1) => {
     try {
       setLoading(true);
+      if (pageNum > 1) { // Clear specific load more error before attempting to load more
+        setLoadMoreError(null);
+      }
       const response = await PostService.getFeed({
         Page: pageNum,
         Count: 10,
@@ -21,59 +26,48 @@ export default function Posts({ audience = Audience.All, sortBy = SortType.New }
         Sort: sortBy
       });
       
-      // Add console log to debug the structure
-      console.log('API Response:', response);
-      
-      // Check different possible response structures
-      let postsData = [];
-      
-      if (response && Array.isArray(response.Data)) {
-        postsData = response.Data;
-      } else if (response && Array.isArray(response.data)) {
-        postsData = response.data;
-      } else if (Array.isArray(response)) {
-        postsData = response;
-      } else if (response && typeof response === 'object') {
-        // Try to find an array property in the response
-        const arrayProps = Object.keys(response).filter(key => 
-          Array.isArray(response[key]) && response[key].length > 0
-        );
-        
-        if (arrayProps.length > 0) {
-          // Use the first array property found
-          postsData = response[arrayProps[0]];
-          console.log(`Found posts array in property: ${arrayProps[0]}`);
+      // console.log('API Response:', response); // Optional: for debugging
+
+      if (response && response.data && Array.isArray(response.data.posts) && typeof response.data.totalPages === 'number') {
+        const postsData = response.data.posts;
+        const totalPages = response.data.totalPages;
+
+        if (pageNum === 1) {
+          setPosts(postsData);
+          setError(null); // Clear main error on successful initial load
         } else {
-          console.error('Could not locate posts array in response:', response);
-          setError('Could not find posts data in API response');
-          setLoading(false);
-          return;
+          setPosts(prev => [...prev, ...postsData]);
+        }
+        setLoadMoreError(null); // Clear load more error on any successful fetch
+
+        if (postsData.length === 0 || pageNum >= totalPages) {
+          setHasMorePosts(false);
+        } else {
+          setHasMorePosts(true);
         }
       } else {
-        console.error('Unexpected response format:', response);
-        setError('Unexpected data format from API');
-        setLoading(false);
-        return;
+        console.warn('Unexpected API response format:', response);
+        const errorMessage = 'Invalid API response format from server.';
+        if (pageNum === 1) {
+          setError(errorMessage);
+        } else {
+          setLoadMoreError(errorMessage);
+        }
+        setHasMorePosts(false); // Stop further pagination attempts
       }
-      
-      console.log('Extracted posts data:', postsData);
-      
-      if (pageNum === 1) {
-        setPosts(postsData);
-      } else {
-        setPosts(prev => [...prev, ...postsData]);
-      }
-      
-      // Check if we've reached the end
-      const totalPages = response.TotalPage || response.totalPages || response.totalPage || 1;
-      if (postsData.length < 10 || pageNum >= totalPages) {
-        setHasMorePosts(false);
-      }
-      
+
       setLoading(false);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error fetching posts:', err);
-      setError('Failed to load posts');
+      const message = err?.message || 'Failed to load posts';
+      if (pageNum === 1) {
+        setError(message);
+        setLoadMoreError(null); // Ensure no loadMoreError if initial load fails
+      } else {
+        setLoadMoreError(message);
+        // Do not set main error if "load more" fails, keep existing posts
+      }
+      setHasMorePosts(false); // Stop further pagination attempts on error
       setLoading(false);
     }
   };
@@ -83,11 +77,14 @@ export default function Posts({ audience = Audience.All, sortBy = SortType.New }
     setPosts([]);
     setPage(1);
     setHasMorePosts(true);
+    setError(null); // Clear main error
+    setLoadMoreError(null); // Clear load more error
     fetchPosts(1);
   }, [audience, sortBy]);
 
   const loadMorePosts = () => {
     if (!loading && hasMorePosts) {
+      setLoadMoreError(null); // Clear previous load more error before retrying
       const nextPage = page + 1;
       setPage(nextPage);
       fetchPosts(nextPage);
@@ -176,8 +173,12 @@ export default function Posts({ audience = Audience.All, sortBy = SortType.New }
       }}>
         {error}
         <div style={{ marginTop: '10px' }}>
-          <button 
-            onClick={() => fetchPosts(1)}
+          <button
+            onClick={() => {
+              setError(null); // Clear main error before retrying
+              setLoadMoreError(null); // Clear load more error before retrying
+              fetchPosts(1);
+            }}
             style={{
               padding: '8px 16px',
               backgroundColor: '#3390ec',
@@ -201,17 +202,22 @@ export default function Posts({ audience = Audience.All, sortBy = SortType.New }
       ) : (
         <>
           {posts.map((post, index) => (
-            <Post 
-              key={post.Id || post.id || index} 
-              post={post} 
-              onShare={handleShare}
-            />
+            <ErrorBoundary
+              key={post.Id || post.id || index} // Key on ErrorBoundary
+              fallback={<div style={{ padding: '10px', color: 'orange', border: '1px dashed gray', margin: '10px 0', textAlign: 'center' }}>A post could not be displayed.</div>}
+            >
+              <Post
+                post={post}
+                onShare={handleShare}
+              />
+            </ErrorBoundary>
           ))}
-          
-          {loading && (
-            <div className="loading-indicator" style={{ 
-              display: 'flex', 
-              justifyContent: 'center', 
+
+          {/* Loading indicator for subsequent loads */}
+          {loading && posts.length > 0 && (
+            <div className="loading-indicator" style={{
+              display: 'flex',
+              justifyContent: 'center',
               padding: '20px'
             }}>
               <div style={{
@@ -221,16 +227,33 @@ export default function Posts({ audience = Audience.All, sortBy = SortType.New }
                 borderLeftColor: '#3390ec',
                 borderRadius: '50%',
                 animation: 'spin 1s linear infinite'
-              }}/>
-              <style>{`
-                @keyframes spin {
-                  to { transform: rotate(360deg); }
-                }
-              `}</style>
+              }} />
+              {/* Removed redundant <style> block for spin animation as it should be global or in CSS file */}
+            </div>
+          )}
+
+          {/* Error display for "load more" failures */}
+          {loadMoreError && !loading && (
+            <div style={{ textAlign: 'center', padding: '10px', color: 'red' }}>
+              {loadMoreError}
+              <button 
+                onClick={loadMorePosts} 
+                style={{ 
+                  marginLeft: '10px',
+                  padding: '5px 10px',
+                  backgroundColor: '#3390ec',
+                  border: 'none',
+                  borderRadius: '4px',
+                  color: 'white',
+                  cursor: 'pointer'
+                }}
+              >
+                Retry
+              </button>
             </div>
           )}
           
-          {!hasMorePosts && posts.length > 0 && (
+          {!hasMorePosts && posts.length > 0 && !loadMoreError && ( // Only show if no error
             <div style={{ textAlign: 'center', padding: '20px', opacity: 0.7 }}>
               No more posts to load
             </div>
